@@ -67,4 +67,9 @@ export default {
 #app {
   background: #D7D7D7;
 }
+
+button:hover {
+  transition-duration: 0.2s;
+  opacity: 85%;
+}
 </style>
