@@ -2,36 +2,47 @@
   <div class="ticket-body">
     <div class="ticket-body__info">
       <div class="ticket-body__main-info">
-        <img class="ticket-body__airline-icon" src="../assets/airlines-icons/KC.png" width="15" height="20">
-        <p class="ticket-body__airline-name">Air Astana</p>
+        <img class="ticket-body__airline-icon" :src="require(`../assets/airlines-icons/${$props.ticket.itineraries[0][0].carrier}.png`)" width="15" height="20">
+				<p class="ticket-body__airline-name">{{ $props.ticket.itineraries[0][0].carrier_name }}</p>
         <div class="departure-time">
-          <p class="departure-time__date">25 ноя, вс</p>
-					<p class="departure-time__time">23:25</p>
+          <p class="departure-time__date">{{ departureDate }}</p>
+					<p class="departure-time__time">{{ departureTime }}</p>
         </div>
         <div class="timeline">
-            4 hours
+					<div class="timeline-codes">
+						<span class="airport-code">{{ $props.ticket.itineraries[0][0].segments[0].origin_code }}</span>
+						<span class="traveltime">{{ convertHMS($props.ticket.itineraries[0][0].traveltime) }}</span>
+						<span class="airport-code">{{ $props.ticket.itineraries[0][0].segments[0].dest_code }}</span>
+					</div>
+					<div class="timeline-image">
+						<span class="circle"></span>
+						<span class="circle" v-if="$props.ticket.itineraries[0][0].stops > 0"></span>
+						<span class="circle"></span>
+					</div>
+					<p class="timeline-stops" v-if="$props.ticket.itineraries[0][0].stops > 0">через Шымкент, 1 ч 50 м</p>
         </div>
         <div class="arrival-time">
-					<p class="departure-time__date">26 ноя, пн</p>
-					<p class="departure-time__time">03:25</p>
+					<p class="arrival-time__date">{{ arrivalDate }}</p>
+					<p class="arrival-time__time">{{ arrivalTime }}</p>
         </div>
       </div>
       <div class="ticket-body__additional-info">
         <a href="">Детали перелета</a>
         <a href="">Условия тарифа</a>
-        <div class="refundability">
+        <div class="refundability" v-if="!$props.ticket.refundable">
           <img src="../assets/icons/icon-non-refundeble.svg" alt="">
           <p>невозвратный</p>
         </div>
       </div>
     </div>
     <div class="ticket-body__price">
-      <p class="ticket-body__pricetag">590 240 &#8376;</p>
+      <p class="ticket-body__pricetag">{{ $props.ticket.price }} &#8376;</p>
       <button>Выбрать</button>
       <p class="ticket-body__passengers-price">цена за всех пассажиров</p>
       <div class="ticket-body__baggage-info">
-				<p>Нет багажа</p>
-				<button>+ Добавить багаж</button>
+				<p v-if="baggageValue > 0">Багаж: {{ baggageValue }} кг</p>
+				<p v-else>Нет багажа</p>
+				<button v-if="baggageValue === 0">+ Добавить багаж</button>
 			</div>
     </div>
   </div>
@@ -39,11 +50,118 @@
 
 <script>
 export default {
-  name: 'Ticket'
+  name: 'Ticket',
+	data() {
+		return {
+			baggageValue: this.$props.ticket.itineraries[0][0].segments[0].baggage_options[0].value,
+		}
+	},
+	props: {
+		ticket: Object
+	},
+	methods: {
+		convertHMS(value) {
+			const sec = parseInt(value, 10); // convert value to number if it's string
+
+			let hours   = Math.floor(sec / 3600); // get hours
+			let minutes = Math.floor((sec - (hours * 3600)) / 60); // get minutes
+
+			if (minutes < 10) {minutes = "0"+minutes;}
+
+			return hours+' ч '+minutes+' м'; // Return is HH : MM : SS
+		}
+	},
+	computed: {
+		departureDate() {
+			const departure = this.$props.ticket.itineraries[0][0].segments[0].dep_time
+			const commaIndex = departure.indexOf(',')
+			return departure.slice(0, commaIndex + 4)
+		},
+
+		departureTime() {
+			const departure = this.$props.ticket.itineraries[0][0].segments[0].dep_time
+			const commaIndex = departure.indexOf(',')
+
+			return departure.slice(commaIndex + 5)
+		},
+
+		arrivalDate() {
+			const arrival = this.$props.ticket.itineraries[0][0].segments[0].arr_time
+			const commaIndex = arrival.indexOf(',')
+			return arrival.slice(0, commaIndex + 4)
+		},
+
+		arrivalTime() {
+			const arrival = this.$props.ticket.itineraries[0][0].segments[0].arr_time
+			const commaIndex = arrival.indexOf(',')
+
+			return arrival.slice(commaIndex + 5)
+		}
+	}
 }
 </script>
 
 <style>
+
+.timeline-stops {
+	font-family: Open Sans;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 16px;
+	text-align: center;
+	color: #FF9900;
+	}
+
+.circle {
+	height: 3px;
+	width: 3px;
+	border-radius: 50%;
+	border: 1px solid #B9B9B9; 
+	background-color: #FFFFFF;
+}
+
+.timeline-image {
+	width: 100%;
+	height: 1px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #B9B9B9;
+	border: none;
+	margin-top: 4px;
+}
+
+.timeline {
+	width: 170px;
+	margin: 0 30px;
+}
+
+.timeline-codes {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.traveltime {
+	font-family: Open Sans;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 18px;
+	color: #202123;
+}
+
+.airport-code {
+	font-family: Open Sans;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 10px;
+	line-height: 18px;
+	color: #B9B9B9;
+}
+
 .departure-time__date{
 	margin: 0;
 	font-family: Open Sans;
@@ -54,6 +172,24 @@ export default {
 }
 
 .departure-time__time {
+	margin: 0;
+	font-family: Open Sans;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 24px;
+	color: #202123;
+}
+
+.arrival-time__date{
+	margin: 0;
+	font-family: Open Sans;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 12px;
+	color: #202123;
+}
+
+.arrival-time__time {
 	margin: 0;
 	font-family: Open Sans;
 	font-style: normal;
@@ -78,6 +214,7 @@ export default {
 	background-color: #FFFFFF;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
 	border-radius: 4px;
+	margin: 20px;
 }
 
 .ticket-body__info {
