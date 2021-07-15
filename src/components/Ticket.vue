@@ -214,7 +214,7 @@ export default {
 	background-color: #FFFFFF;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
 	border-radius: 4px;
-	margin: 20px;
+	margin-bottom: 20px;
 }
 
 .ticket-body__info {

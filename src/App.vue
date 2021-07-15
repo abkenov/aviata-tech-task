@@ -1,18 +1,15 @@
 <template>
   <div>
-    {{ currentTickets.length }}
-    {{ direct }} {{ baggage }} {{ refundable }}
-    {{ checkedAirlines }}
     <TariffOptions 
       @directOption="direct = $event" 
       @baggageOption="baggage = $event" 
       @refundOption="refundable = $event"
       @discardOptionsEvent="discardOptions"
     />
-    <AirlinesOptions @checkedAirlines="checkedAirlines = $event" :filter="filter" />
-    <a @click="discardOptions">Сбросить все фильтры</a>
+    <AirlinesOptions @checkedAirlines="checkedAirlines = $event" :filterTickets="filterTickets" />
+    <a class="discard-filters" @click="discardOptions">Сбросить все фильтры</a>
   </div>
-  <div>
+  <div class="tickets">
     <Ticket v-for="ticket in currentTickets" :key="ticket.id" :ticket="ticket" />
   </div>
 </template>
@@ -38,7 +35,7 @@ export default {
     }
   },
   methods: {
-    filter() {
+    filterTickets() {
       this.currentTickets = this.allTickets
 
       if(this.direct) {
@@ -65,21 +62,19 @@ export default {
   computed: {
 
   },
-  // created() {
-  //   this.filter()
-  // },
   watch: {
     direct() {
-      this.filter()
+      this.filterTickets()
     },
     baggage() {
-      this.filter()
+      this.filterTickets()
     },
     refundable() {
-      this.filter()
+      this.filterTickets()
     },
     checkedAirlines() {
-      this.filter()
+      console.log('second');
+      this.filterTickets()
     }
   },
   components: {
@@ -109,5 +104,18 @@ button:hover {
 .tickets {
 	display: flex;
 	flex-direction: column;
+  margin-top: 50px;
+}
+
+.discard-filters {
+  font-family: Open Sans;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 16px;
+  color: #7284E4;
+  cursor: pointer;
+  border-bottom: 1px dashed;
+  margin: 20px auto auto 149px;
 }
 </style>

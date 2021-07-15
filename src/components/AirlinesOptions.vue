@@ -1,6 +1,5 @@
 <template>
 	<div class="airlines-options">
-		{{ checkedAirlines }}
 		<h2 class="airlines-options__title">Авиакомпании</h2>
 		<div class="airlines-options__option">
 			<input type="checkbox" name="all" id="all" v-model="isAllChecked" value="isAllChecked" @change="checkAll">
@@ -27,12 +26,16 @@ export default {
 	},
 	methods: {
 		checkAll() {
-			this.$props.filter()
 			this.checkedAirlines.length = 0
-			this.isAllChecked ? Object.keys(this.airlines).forEach(airline => this.checkedAirlines.push(airline)) : this.checkedAirlines.length = 0
 			this.returnCheckedAirlines()
+			if (this.isAllChecked) {
+				Object.keys(this.airlines).forEach(airline => this.checkedAirlines.push(airline))
+				this.$props.filterTickets()
+			}
+			
 		},
 		returnCheckedAirlines() {
+			console.log('first');
 			this.$emit('checkedAirlines', this.checkedAirlines)
 		}
 	},
@@ -46,14 +49,14 @@ export default {
 		}
 	},
 	emits: ['checkedAirlines'],
-	props: ['filter']
+	props: ['filterTickets']
 }
 </script>
 
 <style>
 
 .airlines-options {
-	margin: 20px;
+	margin: 0 20px 13px 149px;
 	width: 240px;
 	height: 320px;
 	background: #F5F5F5;
